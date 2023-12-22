@@ -1,5 +1,5 @@
 <?php
-  header('Location: /public');
+  header('Location: /magasum/public');
   exit();
 ?>
 <!DOCTYPE html>
