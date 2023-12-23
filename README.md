@@ -12,7 +12,7 @@ Le `memoire` de fin de formation est disponible ici :  [Mémoire](https://github
 - PHP : 8.0.2
 - LARAVEL : 9.19
 
-## Instalation
+## Installation
 Avant de passer à l'installation de l'application, vous devez d'abord télécharger et installer les dépendances suivantes :
 - git
 - PHP ~> 8.0.2 
@@ -61,12 +61,17 @@ php artisan migrate
 #### Installer les dépendances Node.js:
 Dans le répertoire de votre projet Laravel, exécutez la commande suivante pour installer les dépendances Node.js définies dans le fichier package.json :
 
+```bash
+npm install & npm run build
+```
+
 #### Seed la base de données :
 Après avoir effectué les étapes mentionnées précédemment, vous pouvez exécuter la commande artisan pour semer (seed) la base de données:
 
 ```bash
 php artisan db:seed
 ```
+
 
 #### Lancer l'application :
 Enfin, démarrez le serveur de développement Laravel :
