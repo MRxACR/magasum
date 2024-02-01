@@ -119,14 +119,14 @@
 
                         <div class="col-12">
                             <p class="fs-4"><strong>Commande N°:</strong>
-                                <span>{{ $reception->livraison->commande->num }}</span> <strong>Du</strong>
-                                <span>{{ $reception->livraison->commande->date }}</span>
+                                <span>{{ $reception->livraison->commande_num }}</span> <strong>Du</strong>
+                                <span>{{ $reception->livraison->commande_date }}</span>
                             </p>
                             <p class="fs-4"><strong>Fournisseur N°:</strong>
-                                <span>{{ $reception->livraison->commande->fournisseur->nom }}
-                                    {{ $reception->livraison->commande->fournisseur->prenom }}
-                                    ({{ $reception->livraison->commande->fournisseur->rs }})</span> <strong>Tél:</strong>
-                                <span>{{ $reception->livraison->commande->fournisseur->tel }}</span>
+                                <span>{{ $reception->livraison->catalogue->fournisseur->nom }}
+                                    {{ $reception->livraison->catalogue->fournisseur->prenom }}
+                                    ({{ $reception->livraison->catalogue->fournisseur->rs }})</span> <strong>Tél:</strong>
+                                <span>{{ $reception->livraison->catalogue->fournisseur->tel }}</span>
                             </p>
                             <div class="d-flex justify-content-between">
                                 <p class="fs-4"><strong>Facture N°:</strong> <span>{{ $reception->facture->num }} </span>
@@ -185,9 +185,13 @@
                             <p class="fs-4"><strong>Consultation N°:</strong>
                                 <span>{{ $reception->num_consultation }}</span>
                             </p>
-                            <p class="fs-4"><strong>Bon de commande N°:</strong>
-                                <span>{{ $reception->livraison->commande->num }}</span>
+
+                            {{--
+                                <p class="fs-4"><strong>Bon de commande N°:</strong>
+                                <span>{{ $reception->livraison->commande_num }}</span>
                             </p>
+                                --}}
+
                             <p class="fs-4"><strong>ODS N°:</strong> <span>{{ $reception->num_ods }}</span></p>
                         </div>
                         <div class="col-sm-6 text-end">

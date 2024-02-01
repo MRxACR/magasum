@@ -53,7 +53,7 @@ class Reception extends Model
     public function articles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class,'article_reception','reception_id','article_id')->withPivot([
-            "quantity","prix","n_inventaire"
+            "quantity","prix","n_inventaire","n_reception"
         ]);
     }
 

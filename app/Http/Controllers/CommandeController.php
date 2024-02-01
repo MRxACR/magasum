@@ -52,8 +52,6 @@ class CommandeController extends Controller
 
         $types = TypeCommande::all();
 
-        $unites = Unite::all();
-
         $types_articles = TypeArticle::all();
 
         return view("commandes.create")->with([

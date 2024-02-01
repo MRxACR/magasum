@@ -24,6 +24,7 @@ class Commande extends Model
         "fournisseur_id",
         "type_commande_id",
         "document_id",
+        "published",
     ];
 
     

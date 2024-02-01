@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('article_catalogue', function (Blueprint $table) {
             $table->foreignId('catalogue_id')->constrained();
             $table->foreignId('article_id')->constrained('articles','id_art');
+            $table->bigInteger('id');
             $table->decimal('prix',15,2,true)->default(0);
             $table->integer("quantity",false,true)->default(0);
-            $table->primary(['catalogue_id','article_id']);
+            $table->primary(['catalogue_id','article_id','id']);
         });
     }
 

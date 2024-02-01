@@ -90,7 +90,7 @@
                                             class="cursor-pointer">
                                             <td class="w-1 text-center ord">{{ $counter++ }}</td>
                                             <td class="w-1 text-center num_br">{{ $reception->num }}</td>
-                                            <td class="w-1 text-center num_bc">{{ $reception->livraison->commande->num }}</td>
+                                            <td class="w-1 text-center num_bc">@isset($reception->livraison->commande) {{$reception->livraison->commande->num}} @else - @endisset</td>
                                             <td class=" text-center num_bl">{{ $reception->livraison->num }}</td>
                                             <td class="text-center num_fac">{{ $reception->facture->num }}</td>
                                             <td class="w-1 text-center articles">{{ $reception->articles->count() }}</td>

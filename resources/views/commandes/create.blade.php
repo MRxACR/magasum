@@ -35,7 +35,7 @@
                                 Mettre à jour
                             </button>
                         @else
-                            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal-large"
+                            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#confirmation"
                                 onclick="confrmation()">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check"
                                     width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -47,38 +47,6 @@
                             </button>
                         @endisset
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal modal-blur fade" id="modal-large" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmation !</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <dl class="row">
-                        <dt class="col-5">Bon de commande:</dt>
-                        <dd class="col-7" id="conf_num"></dd>
-                        <dt class="col-5">Fournisseur:</dt>
-                        <dd class="col-7" id="conf_fournisseur"></dd>
-                        <dt class="col-5">TVA:</dt>
-                        <dd class="col-7" id="conf_tva"> %</dd>
-                        <dt class="col-5">Montant HT:</dt>
-                        <dd class="col-7" id="conf_ht"></dd>
-                        <dt class="col-5">Montant TVA:</dt>
-                        <dd class="col-7" id="conf_m_tva"></dd>
-                        <dt class="col-5">Montant TTC:</dt>
-                        <dd class="col-7" id="conf_ttc"></dd>
-                    </dl>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary"
-                        onclick="$('#articles-form').submit()">Confirmer</button>
                 </div>
             </div>
         </div>

@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Unite;
 use App\Models\Sortie;
 use App\Models\Article;
 use App\Models\Facture;
 use App\Models\Commande;
 use Dotenv\Parser\Value;
 use App\Models\Catalogue;
+use App\Models\Categorie;
 use App\Models\Livraison;
 use App\Models\Reception;
+use App\Models\Fournisseur;
+use App\Models\TypeArticle;
 use Illuminate\Http\Request;
 use App\Custom\Class\ArticleCustom;
 use Illuminate\Support\Facades\Lang;
@@ -26,7 +30,7 @@ class ReceptionController extends Controller
      */
     public function index()
     {
-        $this->authorize("cree_receptions");
+        $this->authorize("voir_receptions");
 
         $receptions = Reception::all();
         return view('receptions.index')->with('receptions', $receptions);
@@ -41,11 +45,31 @@ class ReceptionController extends Controller
     {
         $this->authorize("cree_receptions");
 
-        $commandes = Commande::whereDoesntHave('livraison')->get();
+        $fournisseurs = Fournisseur::all();
+
+        $articles = Article::all();
+
+        $unites = Unite::all();
+
+        $categories = Categorie::all();
+
+        $types_articles = TypeArticle::all();
+
+        $commandes = Commande::whereDoesntHave('livraison')->where('published', true)->get();
 
         return view('receptions.create')->with(
             [
                 "commandes" => $commandes,
+
+                "fournisseurs" => $fournisseurs,
+
+                "articles" => $articles,
+
+                "unites" => $unites,
+
+                "categories" => $categories,
+
+                "types_articles" => $types_articles,
             ]
         );
     }
@@ -59,14 +83,97 @@ class ReceptionController extends Controller
     public function store(StoreReceptionRequest $request)
     {
         $this->authorize("cree_receptions");
+        
+        //dd($request);
 
-        $commande = Commande::find($request->commande_id);
+        $articles = [];
 
-        $catalogue = $commande->catalogue;
+        foreach ($request->articles as $key => $article_x) {
+
+            $article = Article::where('desg_art', '=', $article_x["desg_art"] )->first();
+
+            $categorie_id = Categorie::where('desg', '=', $article_x["categorie"] )->first()->id;
+
+            $unite_id = Unite::where('desg', '=', $article_x["unite"])->first()->id;
+
+            $type_id = TypeArticle::where('desg', '=', $article_x["type"])->first()->id;
+
+            if (!$article) $article = Article::create([
+
+                "desg_art" => $article_x["desg_art"],
+
+                "categorie_id" => $categorie_id,
+
+                "unite_id" => $unite_id,
+
+                "type_id" => $type_id,
+
+                "qte_init" => $article_x["quantity"],
+
+                "qte_alt" => 1,
+            ]);
+
+            $article['commande_quantity'] = $article_x["quantity"];
+
+            $article['commande_prix'] = $article_x["prix"];
+
+            $article['n_inventaire'] = $article_x["inventaire"];
+            
+            $article['n_reference'] = $article_x["reference"];
+
+            $article['quanity'] = $article_x["quantity"];
+
+            $article['price'] = $article_x["prix"];
+
+            $articles[] = $article;
+        }
+
+        $catalogue = Catalogue::create([
+
+            "fournisseur_id" => $request->fournisseur,
+
+            "tva" => $request->tva,
+        ]);
+
+        $old_id = 0;
+        
+        $id = 0;
+
+        
+
+        foreach ($articles as $article){
+
+            if ($old_id != $article->id_art) $id = 0;
+
+            $id++;
+
+            $catalogue->articles()->attach(
+                $article->id_art,
+                [
+                    "id" => $id,
+
+                    "quantity" => $article->commande_quantity,
+
+                    "prix" => $article->commande_prix,
+                ]
+            );
+
+            $article['cat_id'] = $id;
+
+            $old_id = $article->id_art;
+
+        }
+            
 
         $livraison = Livraison::create([
 
-            'commande_id' => $request->commande_id,
+            'commande_id' => null,
+
+            'catalogue_id' => $catalogue->id,
+
+            'commande_num' => $request->num_bc,
+
+            'commande_date' =>  Carbon::createFromFormat('d/m/Y', $request->date_bc)->format('Y-m-d'),
 
             'num' => $request->livraison,
 
@@ -100,35 +207,11 @@ class ReceptionController extends Controller
             'num_ods' => $request->num_ods,
 
         ]);
-        
-        $articles_to_submit = collect();
 
-        foreach ($request->articles as $key => $value) {
-            
-            $articles_to_submit->push([
-                "id" => $value["id"],
-                "n_inventaire" => $value["n_inventaire"],
-            ]);
-        };
+        $articles = collect($articles);
 
-        foreach ($catalogue->articles as $article) {
-
-            $article_fr_db = new ArticleCustom($article);
-
-            $qte_init = $article_fr_db->quantite_disp() + $article->pivot->quantity;
-            $qte_alt = intval($qte_init * 30 / 100);
-
-            $article->update([
-                "qte_init" => $qte_init,
-                "qte_stock" => $qte_init,
-                "qte_alt" => $qte_alt,
-            ]);
-            
-            $n_inventaire = $articles_to_submit->where('id',$article->id_art)->first()['n_inventaire'];
-            $quanity = $article->pivot->quantity;
-            $prix = $article->pivot->prix;
-
-            $reception->articles()->attach($article->id_art, ["quantity" => $quanity, "prix" => $prix, "n_inventaire" => $n_inventaire]);
+        foreach ($articles as $key => $article) {
+            $reception->articles()->attach($article->id_art, ["id" => $article->cat_id, "quantity" => $article->quanity, "prix" => $article->price, "n_inventaire" => $article->n_inventaire, "n_reception" => $article->n_reference]);
         }
 
         return redirect('receptions/' . $reception->id)->with([
@@ -153,7 +236,7 @@ class ReceptionController extends Controller
 
 
         $montant_ht = 0;
-        $tva = $reception->livraison->commande->catalogue->tva;
+        $tva = $reception->livraison->catalogue->tva;
 
         foreach ($reception->articles as $article) $montant_ht += $article->pivot->prix * $article->pivot->quantity;
 

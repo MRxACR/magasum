@@ -11,6 +11,9 @@ class Livraison extends Model
     use HasFactory;
     protected $fillable = [
         'commande_id',
+        'catalogue_id',
+        'commande_num',
+        'commande_date',
         'num',
         'date',
     ];
@@ -23,5 +26,10 @@ class Livraison extends Model
     public function commande(): BelongsTo
     {
         return $this->belongsTo(Commande::class);
+    }
+
+    public function catalogue(): BelongsTo
+    {
+        return $this->belongsTo(Catalogue::class);
     }
 }

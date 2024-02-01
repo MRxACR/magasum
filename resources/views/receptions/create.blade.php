@@ -6,7 +6,7 @@
 @endsection
 
 @section('content')
-    <div class="container-xl">
+    <div class="container-xxl">
 
         <!-- Page title -->
         <div class="page-header">
@@ -52,38 +52,8 @@
         </div>
     </div>
 
-    <div class="modal modal-blur fade" id="confirmation" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <div class="modal-status bg-primary"></div>
-            <div class="modal-body text-center py-4">
-              <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-primary icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v2m0 4v.01"></path><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path></svg>
-              <h3>Confirmation?</h3>
-              <div class="text-muted">Veuillez bien confirmer la réception.</div>
-            </div>
-            <div class="modal-footer">
-              <div class="w-100">
-                <div class="row">
-                  <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
-                        Annuler
-                    </a></div>
-                  <div class="col"><a href="#" class="btn btn-primary w-100" onclick='$("#articles-form").submit();'>
-                      Enregistrer
-                    </a></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-
-
-    <div class="page-body">
-        <div class="container-xl">
+    <div class="page-body" x-data="{ type: @if (old('type') != null) '{{ old('type') }}' @else 'bl' @endif }">
+        <div class="container-xxl">
             <div class="card p-3">
                 <form
                     action="@isset($reception) {{ url('receptions/' . $reception->id) }} @else {{ url('receptions') }} @endisset"
@@ -95,16 +65,20 @@
                     @endisset
                     @csrf
                     <div class="row">
-                        <div class="hr-text">Bon de commande</div>
+                        
+                        <div class="hr-text">Bon de Livraison</div>
 
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label">Bon de commande</label>
-                                <select class="form-select @error('commande_id') is-invalid @enderror" name="commande_id" id="commande_id" onclick="select_commande()"> 
-                                    @foreach ($commandes as $commande)
-                                        <option value="{{ $commande->id }}" rs="{{ $commande->fournisseur->rs }}" date="{{ date("d/m/Y" , strtotime($commande->date)) }}" fournisseur="{{ $commande->fournisseur->nom }} {{ $commande->fournisseur->prenom }}">N°: {{ $commande->num }}
-                                            
-                                        </option>
+                                <label class="form-label">Fournisseur</label>
+                                <select class="form-select" name="fournisseur" id="fournisseur">
+                                    @foreach ($fournisseurs as $fournisseur)
+                                        <option value="{{ $fournisseur->id }}"
+                                            @if (old('fournisseur') != null) @if (old('fournisseur') == $fournisseur->id) selected @endif
+                                        @else
+                                            @isset($commande) @if ($commande->fournisseur_id == $fournisseur->id) @endif  @endisset
+                                            @endif >{{ $fournisseur->nom }}
+                                            {{ $fournisseur->prenom }} ({{ $fournisseur->rs }})</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -112,22 +86,22 @@
 
                         <div class="col-md-3">
                             <div class="mb-3">
-                              <label class="form-label">Date</label>
-                              <div class="form-control-plaintext" id="date"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                              <label class="form-label">Fournisseur</label>
-                              <div class="align-middle h-100">
-                                <div class="form-control-plaintext" id="fournisseur"></div>
-                              </div>
+                                <label class="form-label">Tva %</label>
+                                <input type="number" min="0" max="100"
+                                    class="form-control @error('tva') is-invalid @enderror" value='19'
+                                    name="tva" id="tva" placeholder="tva " maxlength="20" required
+                                    @if (old('tva') != null) value="{{ old('tva') }}"
+                                    @else
+                                        @isset($commande)
+                                            value="{{ $commande->catalogue->tva }}"
+                                        @endisset @endif>
+                                @error('tva')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        <div class="hr-text">Bon de Livraison</div>
-
-                        <div class="col-sm-6">
+                        <div class="col-md-3">
                             <div class="mb-3">
                                 <label for="" class="form-label">N° Bon de livraison</label>
                                 <div class="input-group">
@@ -145,9 +119,9 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-6">
+                        <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label">Date don de livraison</label>
+                                <label class="form-label">Date Bon de livraison</label>
                                 <input type="text" class="form-control @error('date_livraison') is-invalid @enderror"
                                     name="date_livraison" id="" placeholder="date_livraison"
                                     @if (old('date_livraison') != null) value="{{ old('date_livraison') }}" @else @isset($reception) value="{{ date('d/m/Y', strtotime($reception->livraison->date)) }}" @else value="{{ date('d/m/Y') }}" @endisset @endif>
@@ -157,9 +131,48 @@
                             </div>
                         </div>
 
-                        <div class="hr-text">Facture</div>
+                        <div class="col-md-6">
+                            <div class="hr-text">Bon de commande</div>
+                        </div>
 
-                        <div class="col-sm-6">
+                        <div class="col-md-6 d-none d-md-block">
+                            <div class="hr-text">Facture</div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="" class="form-label">N° bon de commande</label>
+                                <div class="input-group">
+
+                                    <input type="text" class="form-control @error('num_bc') is-invalid @enderror"
+                                        name="num_bc" id="facture" placeholder="####/SDMM/23" maxlength="15"
+                                        required
+                                        @if (old('num_bc') != null) value="{{ old('num_bc') }}"@endif>
+                                    @error('num_bc')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Date bon de commande</label>
+                                <input type="text" class="form-control @error('date_bc') is-invalid @enderror"
+                                    name="date_bc" id="" placeholder="##/##/####"
+                                    @if (old('date_bc') != null) value="{{ old('date_bc') }}" @else value="{{ date('d/m/Y') }}" @endif>
+                                @error('date_bc')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 d-block d-md-none">
+                            <div class="hr-text">Facture</div>
+                        </div>
+
+
+                        <div class="col-md-3">
                             <div class="mb-3">
                                 <label for="" class="form-label">N° de facture</label>
                                 <div class="input-group">
@@ -177,11 +190,11 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-6">
+                        <div class="col-md-3">
                             <div class="mb-3">
                                 <label class="form-label">Date la facture</label>
                                 <input type="text" class="form-control @error('date_facture') is-invalid @enderror"
-                                    name="date_facture" id="" placeholder="date_facture"
+                                    name="date_facture" id="" placeholder="##/##/####"
                                     @if (old('date_facture') != null) value="{{ old('date_facture') }}" @else @isset($reception) value="{{ date('d/m/Y', strtotime($reception->livraison->date)) }}" @else value="{{ date('d/m/Y') }}" @endisset @endif>
                                 @error('date_facture')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -262,43 +275,9 @@
                             </div>
                         </div>
 
-                        <div class="hr-text">Articles</div>
+                        <div class="hr-text">Articles</div>       
 
-                        <div class="col-12" id="articles-list">
-                            <div class="card @error('articles') border-danger @enderror">
-                                <div class="card-body">
-                                    <h4 class="card-title">Articles</h4>
-                                    <div class="row">
-
-                                        <div class="col-12">
-                                            <label class="form-label">Liste</label>
-                                            <div class="table-responsive">
-                                                <table
-                                                    class="table 
-                                                table-hover	
-                                                table-bordered
-                                                
-                                                align-middle">
-                                                    <thead class="">
-                                                        <tr class="text-uppercase">
-                                                            <th style="width: 1%">No</th>
-                                                            <th>Designation</th>
-                                                            <th class="w-1">Quantité</th>
-                                                            <th class="text-center">prix</th>
-                                                            <th class="text-center">Montant HT</th>
-                                                            <th class="w-25">N° Inventaire</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="articles-list-class">  
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <x-forms.articles :categories="$categories" :unites="$unites" :types="$types_articles"/>
 
                     </div>
                 </form>
@@ -307,71 +286,7 @@
             </div>
         </div>
     </div>
-@endsection
-
-@section('custom_scripts')
-    <script>
-        let options = {
-            listClass: 'articles-list-class',
-            valueNames: ['no', 'designation', 'categorie', 'type', 'quantite', 'prix', 'montant'],
-            item: function(values) {
-                return `<tr name="articles[${values.no}]"><td class="d-none"><input class="form-control d-none" value="${values.id}" name="articles[${values.no}][id]" /></td> <td class="no"></td><td class="designation" name="articles[${values.no}][designation]">Disk dure externne</td><td class="text-center quantite" name="articles[${values.no}][quantite]">26</td><td class="text-center prix" name="articles[${values.no}][prix]">7100</td><td class="text-center montant"  name="articles[${values.no}][montant]">35500</td><td><input show="${values.type}" type="text" class="form-control inventaire" placeholder="####/SDMM/23" name="articles[${values.no}][n_inventaire]"></td></tr>`;           }
-        }
-
-        const articles = new List('articles-list', options);
-
-        // Search articles  
-        async function select_commande() {
-
-            // send request to the server
-            this.articles = await $.ajax({
-                    type: "POST",
-                    url: "{{ url('api/articles/commandes/search') }}",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: JSON.stringify({
-                        "data": $('#commande_id').val(),
-                        "_token": "{!! csrf_token() !!}"
-                    }),
-
-                    // if the request is success
-                    success: function(data) {
-                        articles.clear();
-                        for (let i = 0; i < data.articles.length; i++) {
-                            const element = data.articles[i];
-                            articles.add(data.articles[i]);
-                            
-                        };
-                        hide_inv();
-                    }
-                });
-
-            get_attributes();
-
-
-
-
-
-        }
-
-        function get_attributes() {
-           
-
-            $('#date').text($('#commande_id').find(":selected").attr('date'));
-            $('#fournisseur').text($('#commande_id').find(":selected").attr('fournisseur') + ' - ' + $('#commande_id').find(":selected").attr('rs'));
-        }
-
-        function hide_inv() { 
-            
-            let inputs = $('.inventaire');
-            for (let i = 0; i < inputs.length; i++) {
-                const element = inputs[i];
-                if(element.getAttribute('show') == "false") element.classList.add('d-none');
-            }
-            
-         }
-        select_commande();
-    </script>
+    
+    
+    
 @endsection

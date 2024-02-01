@@ -27,13 +27,13 @@ class StoreReceptionRequest extends FormRequest
     public function rules()
     {
         return [
-            'commande_id' => ['required', Rule::exists('commandes', 'id')],
+            //'commande_id' => ['required', Rule::exists('commandes', 'id')],
             'livraison' => ['required', 'min:4', 'max:15'],
             'date_livraison' => ['date_format:d/m/Y'],
             'facture' => ['required', 'min:4', 'max:15'],
             'date_facture' => ['date_format:d/m/Y'],
             'num' => ['required', 'string', 'min:5', 'max:15', 'unique:receptions,num'],
-            'articles.*.id' => ['required',  Rule::exists('article_catalogue', 'article_id')],
+            //'articles.*.id' => ['required',  Rule::exists('article_catalogue', 'article_id')],
             
         ];
     }
@@ -52,6 +52,7 @@ class StoreReceptionRequest extends FormRequest
   
         if(array_key_exists("articles",$validator->getData())){
             $validator->after(function ($validator) {
+                return;
 
             
                 $inventaire_prise = [];

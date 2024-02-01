@@ -35,8 +35,7 @@ class ArticleCustom
 
     public function est_dispo($quantite = 0)
     {
-        if($quantite == 0) return $this->stock > $quantite;
-        else return $this->stock >= $quantite;
+        return $this->stock >= $quantite;
     }
 
     public function entrees()
